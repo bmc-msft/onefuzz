@@ -600,6 +600,11 @@ class ScalesetSummary(BaseModel):
     state: ScalesetState
 
 
+class NodeSummary(BaseModel):
+    machine_id: UUID
+    state: NodeState
+
+
 class NodeTasks(BaseModel):
     machine_id: UUID
     task_id: UUID
@@ -658,13 +663,13 @@ class Pool(BaseModel):
     nodes: Optional[List[Node]]
     config: Optional[AgentConfig]
 
-    # work_queue is explicitly not saved to Tables (see save_exclude).  This is
-    # intended to be used to pass the information to the CLI when the CLI asks
-    # for information about what work is in the queue for the pool.
+    # The following fields are explicitly not saved to Tables (see
+    # save_exclude).  This is intended to be used to pass the information to the
+    # CLI when the CLI asks for information about the pool, but without duplicating
+    # the underlying data in the storage tables.
     work_queue: Optional[List[WorkSetSummary]]
-
-    # explicitly excluded from Tables
     scaleset_summary: Optional[List[ScalesetSummary]]
+    node_summary: Optional[List[NodeSummary]]
 
 
 class ScalesetNodeState(BaseModel):

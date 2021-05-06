@@ -10,7 +10,7 @@ from uuid import UUID
 
 from onefuzztypes.enums import OS, Architecture, ErrorCode, PoolState, ScalesetState
 from onefuzztypes.events import EventPoolCreated, EventPoolDeleted
-from onefuzztypes.models import AutoScaleConfig, Error
+from onefuzztypes.models import AutoScaleConfig, Error, NodeSummary
 from onefuzztypes.models import Pool as BASE_POOL
 from onefuzztypes.models import (
     ScalesetSummary,
@@ -74,6 +74,7 @@ class Pool(BASE_POOL, ORMMixin):
             "work_queue": ...,
             "config": ...,
             "node_summary": ...,
+            "scaleset_summary": ...,
         }
 
     def export_exclude(self) -> Optional[MappingIntStrAny]:
@@ -89,6 +90,14 @@ class Pool(BASE_POOL, ORMMixin):
             "state": ...,
             "managed": ...,
         }
+
+    def populate_node_summary(self) -> None:
+        from .nodes import Node
+
+        self.node_summary = [
+            NodeSummary(machine_id=x.machine_id, state=x.state)
+            for x in Node.search_states(pool_name=self.name)
+        ]
 
     def populate_scaleset_summary(self) -> None:
         from .scalesets import Scaleset

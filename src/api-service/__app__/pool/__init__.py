@@ -5,6 +5,7 @@
 
 import logging
 import os
+from typing import Union
 
 import azure.functions as func
 from onefuzztypes.enums import ErrorCode
@@ -53,20 +54,20 @@ def get(req: func.HttpRequest) -> func.HttpResponse:
     if isinstance(request, Error):
         return not_ok(request, context="pool get")
 
+    pool: Union[None, Error, Pool] = None
     if request.name:
         pool = Pool.get_by_name(request.name)
-        if isinstance(pool, Error):
-            return not_ok(pool, context=request.name)
-        pool.populate_scaleset_summary()
-        pool.populate_work_queue()
-        return ok(set_config(pool))
 
-    if request.pool_id:
+    if pool is None and request.pool_id:
         pool = Pool.get_by_id(request.pool_id)
-        if isinstance(pool, Error):
-            return not_ok(pool, context=request.pool_id)
+
+    if isinstance(pool, Error):
+        return not_ok(pool, context="pool get")
+
+    if pool:
         pool.populate_scaleset_summary()
         pool.populate_work_queue()
+        pool.populate_node_summary()
         return ok(set_config(pool))
 
     pools = Pool.search_states(states=request.state)

@@ -16,6 +16,8 @@ export ONEFUZZ_ROOT=/onefuzz
 export ASAN_SYMBOLIZER_PATH=/onefuzz/bin/llvm-symbolizer
 
 logger "onefuzz: making directories"
+sudo mkdir -p /mnt/onefuzz
+sudo ln -s /mnt/onefuzz /onefuzz
 sudo mkdir -p /onefuzz/downloaded
 sudo chown -R $(whoami) /onefuzz
 mv * /onefuzz/downloaded

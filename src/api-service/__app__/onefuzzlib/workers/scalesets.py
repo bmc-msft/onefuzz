@@ -408,8 +408,13 @@ class Scaleset(BASE_SCALESET, ORMMixin):
                 )
                 node.mark_tasks_stopped_early(error=error)
                 node.to_reimage(done=True)
-                if node not in to_reimage:
-                    to_reimage.append(node)
+
+                if self.state in [ScalesetState.halt, ScalesetState.shutdown]:
+                    if node not in to_delete:
+                        to_delete.append(node)
+                else:
+                    if node not in to_reimage:
+                        to_reimage.append(node)
 
         # Perform operations until they fail due to scaleset getting locked
         try:
